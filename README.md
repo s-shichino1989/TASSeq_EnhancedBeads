@@ -30,6 +30,7 @@ sudo chmod 774 ./Rhapsody_analysis/shell_scripts/Rhapsody_mapping.sh
 * Identify valid cell barcodes by using DropletUtils and dropkick packages and export count matrix data of survived cells (.txt.gz file)
 * Export spliced- and un-spliced count data for further RNA velocity analysis
 * Export mapping report html file that contains basic statistics of mapping results with associated figures.
+* Each cell barcode are exported as 27nt nucleotide bases without two 4-base spacers.
 
 
 ## Usage
@@ -52,6 +53,7 @@ Usage: Rhapsody_mapping.sh [OPTIONS...]
  --library_type [required] Specify library type. Acceptable values are WTA, targeted, hashtag, sampletag, ADT, or Abseq.
                            set hashtag if you used BioLegend Hashtags, set sampletag if you used BD Sampletags, set ADT if you use 
                            BioLegend Totalseq antibodies or streptavidin, set Abseq if you used BD Abseq antibodies.
+                           scTCR/scBCR-seq mode is under development.
                          
  --expect_cells VALUE      Specify expected cell number of the library. Default=20000. Only uses WTA or targeted mode.
  
