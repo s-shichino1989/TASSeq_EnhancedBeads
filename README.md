@@ -22,6 +22,16 @@ Once steup.sh is finished, add permission to main mapping shell script
 sudo chmod 774 ./Rhapsody_analysis/shell_scripts/Rhapsody_mapping.sh
 ```
 
+## Brief explanation of the pipeline workflow
+
+* Remove adapters, quality filtering/trimming, and remove polyN streches by Cutadapt 4.1
+* Base composition analysis after quality filtering/trimming by FastQC and Seqkit
+* Perform mapping and counting by STARSolo 2.7.10a (for WTA and targeted reads) or Bowtie2-2.4.5 (for hashtag/sampletag/Totalseq/Abseq reads)
+* Identify valid cell barcodes by using DropletUtils and dropkick packages and export count matrix data of survived cells (.txt.gz file)
+* Export spliced- and un-spliced count data for further RNA velocity analysis
+* Export mapping report html file that contains basic statistics of mapping results with associated figures.
+
+
 ## Usage
 
 Go on to the ./Rhapsody_analysis directory on the command line, and 
