@@ -1,0 +1,387 @@
+---
+title: "Mapping report of BD Rhapsody Tag data"
+date: "`r Sys.Date()`"
+author: "ImmunoGeneTeqs Inc."
+output:
+  rmdformats::readthedown:
+    highlight: kate
+    self_contained: true
+    thumbnails: false
+    lightbox: false
+    gallery: false
+    mathjax: false
+    toc_depth: 2  #type-of-column header specification 
+    md_extensions: -ascii_identifiers
+    css: styles.css
+params:
+  samplename: samplename
+  species: species
+  adapter: adapter
+---
+
+```{r setup, echo=FALSE, cache=FALSE, message=FALSE}
+suppressMessages(library(knitr))
+suppressMessages(library(rmdformats))
+suppressMessages(library(data.table))
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(stringr))
+suppressMessages(library(tibble))
+suppressMessages(library(tidyr))
+suppressMessages(library(DropletUtils))
+suppressMessages(library(DT))
+suppressMessages(library(cowplot))
+
+quiet <- function(x) { 
+  sink(tempfile()) 
+  on.exit(sink()) 
+  invisible(force(x)) 
+} 
+
+tableread_fast = function(i){
+	 tmp = fread(i, header=FALSE, sep="\t", quote="")
+   tmp = as.data.frame(tmp)
+	 return(tmp)
+}
+
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=FALSE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=50)
+opts_template$set(
+  fig_small = list(fig.width=5, fig.height=4, dpi=300, out.width = 200, out.height = 160), 
+  fig_large = list(fig.width=5, fig.height=4, dpi=300, out.width = 500, out.height = 400)
+  )
+
+sample_name = params$samplename
+
+if(params$adapter == "hashtag"){
+  adapter = "hashtag reads were mapped to known barcode fasta by using bowtie2-2.4.2 by the following parameters: -p 2 -D 50 -R 20 -N 0 -L 8 -i S,1,0.75 --norc --seed 656565 --reorder --trim-to 3:21 --score-min L,-9,0 --mp 3,3 --np 3 --rdg 3,3."
+  eval_R2_hashtag = TRUE
+  eval_R2_sampletag = FALSE
+} else if (params$adapter == "sampletag"){
+  adapter = "sampletag reads were mapped to known barcode fasta by using bowtie2-2.4.2 by the following parameters: -p 2 -D 20 -R 3 -N 0 -L 14 -i S,1,0.75 --norc --seed 656565 --reorder --trim-to 3:40 --score-min L,-9,0 --mp 3,3 --np 3 --rdg 3,3."
+  eval_R2_hashtag = FALSE
+  eval_R2_sampletag = TRUE
+} else if (params$adapter == "ADT"){
+  adapter = "streptavidin/anti-biotin hashtag or ADT reads were mapped to known barcode fasta by using bowtie2-2.4.2 by the following parameters: -p 2 -D 20 -R 3 -N 0 -L 8 -i S,1,0.75 --norc --seed 656565 --reorder -x ${index} --trim-to 3:21 --score-min L,-9,0 --mp 3,3 --np 3 --rdg 3,3."  
+  eval_R2_hashtag = TRUE
+  eval_R2_sampletag = FALSE
+} else if (params$adapter == "Abseq"){
+  adapter = "Abseq/CITE-Seq reads were mapped to known barcode fasta by using bowtie2-2.4.2 by the following parameters: -p 2 -D 20 -R 3 -N 0 -L 8 -i S,1,0.75 --norc --seed 656565 --reorder -x ${index} --trim-to 3:39 --score-min L,-9,0 --mp 3,3 --np 3 --rdg 3,3."  
+  eval_R2_hashtag = FALSE
+  eval_R2_sampletag = TRUE
+}
+
+```
+
+
+--------
+
+## Base composition of adapter-trimmed/quality-filtered sequencing data
+
+After adapter trimming and quanity filtering, base composition of sequencing data was analyzed by FastQC-v0.11.9.  
+Figure 1a. Base compositoion of read1 data (cell barcodes).  Note that phase shift was not corrected in Tag data.       
+
+```{r, echo=FALSE, out.width = 600, out.height = 250, message=FALSE, fig.align='center', dpi=300}
+# Define variable containing url
+url1 = paste(sample_name, "_per_base_sequence_content_R1.png", sep="")
+knitr::include_graphics(paste("../data/", sample_name,"_per_base_sequence_content_R1.png", sep=""))
+```
+
+Figure 1b. Base compositoion of read2 data (tag sequences). Note that the tag sequences were few number of known fixed sequence, the base composition did not show uniform distribution.  
+```{r, echo=FALSE, out.width = 600, out.height = 250, message=FALSE, fig.align='center', dpi=300, eval=eval_R2_sampletag}
+# Define variable containing url
+url2 = paste(sample_name, "_per_base_sequence_content_R2.png", sep="")
+knitr::include_graphics(paste("../data/", sample_name,"_per_base_sequence_content_R2.png", sep=""))
+```
+
+```{r, echo=FALSE, out.width = 400, out.height = 250, message=FALSE, fig.align='center', dpi=300, eval=eval_R2_hashtag}
+# Define variable containing url
+url2 = paste(sample_name, "_per_base_sequence_content_R2.png", sep="")
+knitr::include_graphics(paste("../data/", sample_name,"_per_base_sequence_content_R2.png", sep=""))
+```
+
+Base composition plot was stored at `r paste("./plots/", url1, sep="")` and `r paste("./plots/", url2, sep="")`.
+
+--------
+
+## Brief summary of the mapping pipeline procedures
+
+Pair-end Fastq files (R1: cell barcode reads, R2: RNA reads) of sample `r paste(sample_name, sep="")` were processed as follows.  
+Adapter trimming of sequencing data was performed by using Cutadapt 4.1.  
+Filtered reads were chunked to 64 parts for parallel processing by using Seqkit 2.2.0.  
+Filtered cell barcode reads were annotated by Python script provided by BD with minor modification for compatible to Python3.8.  
+Associated `r paste(adapter, sep="")`  
+Then, cell barcode information of each read were added to the bowtie2-mapped BAM files, and read counts of each Tag in each cell barcode were counted by using mawk.  
+Resulted count data was converted to Tags x cells matrix file by using data.table package in `r paste(version$version.string, sep="")`, and top 1M cell barcodes were extracted.  
+
+```{r analysis, echo=FALSE, cache=FALSE}
+
+#create output folders
+setwd("../") #must set working directory. default is .Rmd-existing path.
+
+#make output directories
+dir.name = sprintf("./result/%s_results", sample_name)
+if(!dir.exists(dir.name)){
+dir.create(dir.name)
+}
+dir.name.1 = paste(dir.name, "/matrix", sep="")
+if(!dir.exists(dir.name.1)){
+dir.create(dir.name.1)
+}
+dir.name.1 = paste(dir.name, "/plots", sep="")
+if(!dir.exists(dir.name.1)){
+dir.create(dir.name.1)
+}
+dir.name.1 = paste(dir.name, "/stats", sep="")
+if(!dir.exists(dir.name.1)){
+ dir.create(dir.name.1)
+}
+dir.name.1 = paste(dir.name, "/processed", sep="")
+if(!dir.exists(dir.name.1)){
+ dir.create(dir.name.1)
+}
+
+#read count table, processed by data.table package
+data1 = fread(paste("./result/", params$samplename,"_final_count.txt.gz", sep=""), header=FALSE, sep="\t", quote="")
+colnames(data1)=c("Symbol", "barcode", "counts")
+
+# calculate Total read counts and Detected Genes of each Cell-BCs by data.table package
+tmp1 = data1[, by=barcode, sum(counts)] 
+colnames(tmp1)=c("ALLCell_BCs", "Total_reads")
+tmp2 = data1[, by=barcode, uniqueN(Symbol)]
+colnames(tmp2)=c("ALLCell_BCs", "Symbol_kinds")
+res2 = merge(tmp1, tmp2, by = "ALLCell_BCs", all = TRUE)
+res2 = res2[order(-Total_reads)]
+quiet(gc())
+
+
+#select all cell BCs by read counts
+#create gene x cell matrix
+
+Cell_BCs = res2$ALLCell_BCs  
+res3 = data1[barcode %chin% Cell_BCs]
+
+#create gene x cell matrix
+res4 = data.table::dcast(res3, Symbol ~ barcode, value.var = "counts", fill=0)
+res4 = as.data.frame(res4)
+tmp = res4[,1]
+res4 = res4[,2:ncol(res4), drop=F]
+rownames(res4)=tmp
+symbol_total_50000 = nrow(res4)
+quiet(gc())
+
+#detect inflection point/knee-threshold
+br.out = barcodeRanks(res4)
+
+#correct erroneous inflection point detection if inflection threshold > knee threshold
+if(metadata(br.out)$knee>=metadata(br.out)$inflection){
+br.out = barcodeRanks(res4[,c(metadata(br.out)$knee:50000)])
+}
+
+tmp = res4[,colSums(res4)>=10000, drop=F] 
+tmp1 = c(ncol(tmp), 10000)
+
+#define threshold as inflection point of knee-plot
+tmp = res4[,colSums(res4)>=metadata(br.out)$inflection, drop=F] 
+tmp2 = c(ncol(tmp), metadata(br.out)$inflection)
+symbol_total = nrow(tmp)
+
+#export cell x gene matrix file
+file.name_matrix = sprintf("matrix_inflection_%s.txt.gz", sample_name) 
+file.name_matrix = paste(dir.name, "/matrix/", file.name_matrix, sep="")
+fwrite(as.data.frame(tmp), file.name_matrix, row.names=T, col.names=T, sep="\t", 
+       eol="\n", quote=F, nThread=32, compress="gzip")
+ 
+#export thresholds and survived cells
+threshold_log = cbind(tmp1, tmp2)
+rownames(threshold_log)=c("Survived_Cells", "count_threshold")
+colnames(threshold_log)=c("count", "inflection")
+
+#concatenate and reshape mapping statistics
+res2=as.data.frame(res2)
+res3 = res2[res2[,2]>=metadata(br.out)$inflection,,drop=F]
+read_stats = c(median(res3[,2]), mean(res3[,2]), sum(res3[,2]), sum(res2[,2]))
+symbol_stats =c(median(res3[,3]), mean(res3[,3]), symbol_total, symbol_total_50000)
+inflection_log = cbind(read_stats, symbol_stats)
+rownames(inflection_log)=c("median", "mean", "total_inflection", "total")
+
+cutadapt_log = sprintf("./result/%s_cutadapt.log", sample_name)
+cutadapt_log = read.table(cutadapt_log, header=TRUE, row.names=1, sep="\t", 
+                         quote="",stringsAsFactors=FALSE)
+mapping_log = sprintf("./result/%s_mapping.log", sample_name)
+mapping_log = read.table(mapping_log, header=TRUE, row.names=1, sep="\t", 
+                         quote="",stringsAsFactors=FALSE)
+
+cutadapt_log1 = cutadapt_log[,1]
+mapping_log1 = mapping_log[,2]
+threshold_log1 = threshold_log[1,1]
+threshold_log2 = threshold_log[c(2,1),2]
+inflection_log1 = inflection_log[c(3,1,2),1]
+inflection_log2 = inflection_log[c(1:3),2]
+mapping_log2 = inflection_log[4,1]/mapping_log[2,2]*100
+mapping_log3 = inflection_log[3,1]/inflection_log[4,1]*100
+
+logs = c(cutadapt_log1, mapping_log1, mapping_log2, 
+         inflection_log[4,1], threshold_log2, threshold_log1, 
+         inflection_log1[1], mapping_log3, inflection_log1[2:3], inflection_log2)
+logs = as.data.frame(logs)
+rownames(logs) = c("Total raw reads", 
+                   "Total reads after trimming and quality filtering",  
+                   "Mapped reads", 
+                   "Mapping rate against reference", 
+                   "Mapping rate against reference & CellBC", 
+                   "Final assigned reads",
+                   "Inflection threshold", "Survived cells", "over10000read cells",
+                   "Total reads over inflection threshold", 
+                   "Percent of total reads over inflection threshold",
+                   "Median reads over inflection threshold", 
+                   "Mean reads over inflection threshold", 
+                   "Median Tags over inflection threshold", 
+                   "Mean Tags over inflection threshold", 
+                   "Total Tags detected")
+colnames(logs) = sample_name
+logs=logs[c(1:8,10:16),,drop=F]
+logs[c(4,5, 10,12,14),1] = round(logs[c(4,5, 10,12,14),1], digits=2)
+logs[c(12,14),1] = round(logs[c(12,14),1], digits=0)
+file.name.logs = sprintf("stats_concat_%s.txt", sample_name) 
+file.name.logs = paste(dir.name, "/stats/", file.name.logs, sep="")
+write.table(logs, file.name.logs, row.names=T, col.names=T, sep="\t", quote=F, append=F)
+
+#export plots
+Nbarcode = ncol(res4)
+df  = res2[1:min(1000000, Nbarcode),]  
+df$Rank = c(1:min(1000000, Nbarcode))
+colnames(df)[2] = "Nreads"
+df[,2]=log10(df[,2])
+df[,4]=log10(df[,4])
+
+df1_1 = df[c(1:threshold_log[1,2]),] 
+df1_2 = df[(threshold_log[1,2]+1):min(1000000, Nbarcode),] 
+df1_1$group = rep("Cell", nrow(df1_1))
+df1_2$group = rep("Background", nrow(df1_2))
+df = rbind(df1_1, df1_2)
+
+df$group = factor(df$group, levels = c("Cell", "Cell or background", "Background"))
+
+
+p_knee = ggplot(df) + 
+  geom_point(data=df, aes(Rank, Nreads, group=group, color=group), size=0.5) + 
+  scale_color_manual(values=c("#006699", "#d3d3d3")) +
+  scale_fill_manual(values=c("#006699", "#d3d3d3")) +
+  geom_line(data = df1_1, aes(Rank, Nreads), colour="#006699", size=1) +
+  geom_line(data = df1_2, aes(Rank, Nreads), colour= "#d3d3d3", size=1) +
+  ylab(expression(paste("Read number (", {log[10]}, ")", sep=""))) +  
+  xlab(expression(paste("Cell barcode rank (", {log[10]}, ")", sep=""))) +
+    scale_x_continuous(breaks=c(1,2,3,4,5,6))+
+  ggtitle(paste("Barcode rank plot (survived cells = ", threshold_log[1,2]," cells)", sep="")) +
+  theme_linedraw() +
+  theme(plot.title=element_text(hjust = 0.5), text=element_text(size=10)) + 
+  guides(colour = guide_legend(override.aes = list(size=5)))
+
+file.name_knee = sprintf("BarcodeRankPlot_%s.png", sample_name)
+file.name_knee = paste(dir.name, "/plots/", file.name_knee, sep="")
+ggsave(file=file.name_knee, plot=p_knee, device="png", units="in",
+       dpi=300, width=5, height=4, limitsize = FALSE)
+
+#export top1000000 cell BCs by read counts for flowjo analysis
+filtered_cells = dplyr::top_n(res2, 1000000, Total_reads)
+Cell_BCs = as.vector(filtered_cells[,1])
+res3 = data1[barcode %chin% Cell_BCs]
+
+#create gene x cell matrix for Flowjo input
+res4 = data.table::dcast(res3, Symbol ~ barcode, value.var = "counts", fill=0)
+res4 = as.data.frame(res4)
+tmp = res4[,1]
+res4 = res4[,2:ncol(res4), drop=F]
+rownames(res4)=tmp
+symbol_total_50000 = nrow(res4)
+quiet(gc())
+res4=t(res4)
+res4=as.data.frame(res4)
+res4=cbind(rownames(res4), res4)
+colnames(res4)[1]="CellBC"
+file.name = sprintf("Hashtag_top1M_%s.txt.gz", sample_name) 
+file.name = paste(dir.name, "/matrix/", file.name, sep="")
+fwrite(as.data.frame(res4), file.name, row.names=F, col.names=T, sep="\t", eol="\n", quote=F, nThread=32, compress="gzip")
+
+```
+
+---
+
+## Results
+
+### Mapping statistics
+
+---
+
+```{r output_table, echo=FALSE, cache=FALSE,dpi=300, out.width = 500, out.height = 500}
+DT::datatable(logs, filter="none", width=700,
+          caption = 'Table 1: mapping statistics, detected cell and detected gene statistics.', 
+          class = 'cell-border stripe', 
+          options = list(pageLength=15, searching=FALSE, lengthChange=FALSE)) %>%
+   DT::formatStyle(columns = c(1, 2), fontSize = 8)
+```
+
+Original data is stored at `r sprintf("/stats/stats_concat_%s.txt", sample_name)`
+
+---
+
+### Barcode rank plot
+
+Barcode rank plot ((log10 read counts of each cell barcodes) x (rank of read counts of each cell barcodes))
+
+CAUTION: survived cells calculated by tag counts usually lower than that by cDNA counts because staining efficiency was different between different cell types.  
+
+---
+
+```{r barcode_rank_plot, echo=FALSE, cache=FALSE, fig.width=6, fig.height=4.5, dpi=450, out.width = 600, out.height = 400, fig.align='center'}
+plot_grid(p_knee)
+  quiet(dev.off())
+  quiet(gc())
+  Sys.sleep(5)
+```
+
+---
+
+Plot file locations  
+
+* knee-plot was stored at `r sprintf("./plots/BarcodeRankPlot_%s.png", sample_name)`.
+
+---
+
+## Output file explanations
+
+Raw sequence files (fastq.gz format)  
+
+* Raw sequence fastq.gz files were stored at `r paste("./fastq/", sep="")` folder. "R1" means read 1 sequence, and "R2" means read 2 sequence.  
+
+Gene-expression matrix files (gzip comporessed)
+
+Rownames means gene symbols, and colnames means cell barcodes.
+
+* Tags x cells matrix (over inflection threshod) was stored at `r sprintf("./matrix/Hashtag_top1M_%s.txt.gz", sample_name)`.
+
+Processed count data (gzip comporessed, tidy data-format)  
+
+* First row: Tag names  
+* Second column: cell barcodes  
+* Third column: read counts  
+    * processed count data was stored at `r sprintf("./processed/%s_final_count.txt.gz", sample_name)`.
+
+
+---
+
+## Sessioninfo
+
+```{r sessioninfo, results.folding="hide", summary.results="SessionInfo"}  
+options(max.print = 999999)
+sessionInfo()
+```
