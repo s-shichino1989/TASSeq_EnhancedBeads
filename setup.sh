@@ -141,10 +141,20 @@ else
 fi
 
 #required python3 modules (pip3)
-#python3.7 or higher
-python3 -m pip install --user --upgrade pip
-python3 -m pip install -r --user ./source_file/requirements.txt
-python3 -m pip install --user ./Rhapsody_python_new/
+#python3.8 or higher
+echo -n "Do you install required python modules via pip? [y/N]: "
+read ANS
+ 
+case $ANS in
+  [Yy]* )
+    python3 -m pip install --user --upgrade pip
+    python3 -m pip install -r --user ./source_file/requirements.txt
+    python3 -m pip install --user ./Rhapsody_python_new/
+    ;;
+  * )
+    echo "Skipping install of required python modules. Please see ./source_file/requirements.txt to check required python modules manually."
+    ;;
+esac
 
 # install pandoc
 if type "pandoc" > /dev/null 2>&1
@@ -158,7 +168,17 @@ fi
 
 
 #install required R packages
-Rscript ./Rscripts/setup.R
+echo -n "Do you install required R packages automatically? [y/N]: "
+read ANS
+ 
+case $ANS in
+  [Yy]* )
+    Rscript ./Rscripts/setup.R
+    ;;
+  * )
+    echo "Skipping install of required R packages. Please see ./Rscripts/setup.R to check required R packages manually."
+    ;;
+esac
 
 #find out python3 path and modify source R scripts for appropriate PATH
 tmp=`which python3`
