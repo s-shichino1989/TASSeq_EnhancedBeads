@@ -26,8 +26,6 @@ sudo apt-get install -y libhts-dev libboost-all-dev libmagick++-dev libboost-dev
 sudo apt-get autoremove -y
 
 
-# please comment out line 32-46 to avoid re-install of R
-
 echo -n "Do you remove current R and re-install clean R 4.2.1? [y/N]: "
 read ANS
  
