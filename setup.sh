@@ -28,9 +28,9 @@ sudo apt-get autoremove -y
 #clean up remained old R libraries
 R_version=`apt list --installed | grep r-base/focal,focal,now | sed -e 's/.*\(4.2.1\).*/\1/g'`
 
+# please comment out line 32-46 to avoid re-install of R
 if [ $R_version = 4.2.1 ]; then
 echo "R 4.2.1 is already installed"
-
 else
  echo "R 4.2.1 is not installed. remove current R if already installed and re-install clean R 4.2.1."
  sudo apt-get purge -y r-base* r-cran-* r-recommended
