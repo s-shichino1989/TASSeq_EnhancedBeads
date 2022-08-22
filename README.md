@@ -34,13 +34,13 @@ sudo chmod 774 ./Rhapsody_analysis/shell_scripts/Rhapsody_mapping.sh
 * Each cell barcode are exported as 27nt nucleotide bases without two 4-base spacers.
 
 ## Dependencies
-STARsolo 2.7.10a (https://github.com/alexdobin/STAR)
-Cutadapt 4.1 (https://cutadapt.readthedocs.io/en/stable/)
-Seqkit 2.2.0 (https://bioinf.shenwei.me/seqkit/)
-FastQC v0.11.9 (https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
-Bowtie2 v2.4.5 (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
-R 4.2.1 (https://cran.r-project.org/) and asspcoaied packages (please see ./Rsciprs/setup.R)
-Python3 (3.8 or greater) and asspcoaied packages (please see /source_file/requirements.txt)
+STARsolo 2.7.10a (https://github.com/alexdobin/STAR)  
+Cutadapt 4.1 (https://cutadapt.readthedocs.io/en/stable/)  
+Seqkit 2.2.0 (https://bioinf.shenwei.me/seqkit/)  
+FastQC v0.11.9 (https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)  
+Bowtie2 v2.4.5 (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)  
+R 4.2.1 (https://cran.r-project.org/) and asspcoaied packages (please see ./Rsciprs/setup.R)  
+Python3 (3.8 or greater) and asspcoaied packages (please see /source_file/requirements.txt)  
 
 ## Usage
 
