@@ -1,25 +1,24 @@
 # TAS-Seq mapping pipeline
-Mapping pipeline for TAS-Seq / BD Rhapsody WTA data (only for BD Rhapsody enhanced beads)
+Mapping pipeline for TAS-Seq / BD Rhapsody WTA data (only for BD Rhapsody enhanced beads)  
 
-To use this pipline, please clone repository, extract, and change folder name as "Rhapsody_analysis".
+To use this pipline, please clone repository, extract, and change folder name as "Rhapsody_analysis".  
 
-Please first see setup.sh to setup analytical environment.
-This package is tested for Ubuntu 20.04 LTS, python3.8, pip, R-4.2.1.
+Please first see setup.sh to setup analytical environment.  
+This package is tested for Ubuntu 20.04 LTS, python3.8, pip, R-4.2.1.  
 
-CAUTION!! R environment is forced to clean and re-install R 4.2.1.
-If you do not want to re-install R environment, please comment out line 31-46 of setup.sh script.  
-
-
-You could setup analytical environment by moving on to the Rhapsody_analysis directory and type as below.
+You could setup analytical environment by moving on to the Rhapsody_analysis directory and type as below.  
 
 ```bash
 sudo sh setup.sh
 ```
-if you do not want to remove your current R environment, install required packages manually 
-by seeing setup.sh and ./Rscripts/setup.R
 
+In the setup.sh script, ask whether re-install R 4.2.1, install required python modules/R packages automatically.  
+Please select and type y/Y(Yes) or n/N(No).  
+If you do not perform automatic install of modules/packages. you could check required modules/packages  
+manually by seeing ./source_file/requirements.txt (for python module installation via pip)  
+and ./Rscripts/setup.R (R package installation).  
 
-Once setup.sh is finished, add permission to main mapping shell script
+Once setup.sh is finished, add permission to main mapping shell script.  
 
 ```bash
 sudo chmod 774 ./Rhapsody_analysis/shell_scripts/Rhapsody_mapping.sh
