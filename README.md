@@ -39,8 +39,8 @@ Cutadapt 4.1 (https://cutadapt.readthedocs.io/en/stable/)
 Seqkit 2.2.0 (https://bioinf.shenwei.me/seqkit/)  
 FastQC v0.11.9 (https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)  
 Bowtie2 v2.4.5 (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)  
-R 4.2.1 (https://cran.r-project.org/) and asspcoaied packages (please see ./Rsciprs/setup.R)  
-Python3 (3.8 or greater) and asspcoaied packages (please see /source_file/requirements.txt)  
+R 4.2.1 (https://cran.r-project.org/) and associated packages (please see ./Rsciprs/setup.R)  
+Python3 (3.8 or greater) and associated packages (please see /source_file/requirements.txt)  
 
 ## Usage
 
