@@ -25,25 +25,31 @@ sudo apt-get install -y libgsl-dev default-jre libgeos++-dev libgeos-dev libgeos
 sudo apt-get install -y libhts-dev libboost-all-dev libmagick++-dev libboost-dev
 sudo apt-get autoremove -y
 
-#clean up remained old R libraries
-R_version=`apt list --installed | grep r-base/focal,focal,now | sed -e 's/.*\(4.2.1\).*/\1/g'`
 
 # please comment out line 32-46 to avoid re-install of R
-if [ $R_version = 4.2.1 ]; then
-echo "R 4.2.1 is already installed"
-else
- echo "R 4.2.1 is not installed. remove current R if already installed and re-install clean R 4.2.1."
- sudo apt-get purge -y r-base* r-cran-* r-recommended
- sudo apt-get autoremove -y
- sudo rm -R /usr/local/lib/R/site-library
- #install R 4.2.1
- sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
- sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'
- sudo apt-get update -y
- sudo apt-get upgrade -y
- sudo apt-get autoremove -y
- sudo apt-get install -y r-base r-base-dev r-recommended
-fi
+
+echo -n "Do you remove current R and re-install clean R 4.2.1? [y/N]: "
+read ANS
+ 
+case $ANS in
+  [Yy]* )
+
+    echo "Remove current R if already installed and re-install clean R 4.2.1."
+    sudo apt-get purge -y r-base* r-cran-* r-recommended
+    sudo apt-get autoremove -y
+    sudo rm -R /usr/local/lib/R/site-library
+    #install R 4.2.1
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+    sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40/'
+    sudo apt-get update -y
+    sudo apt-get upgrade -y
+    sudo apt-get autoremove -y
+    sudo apt-get install -y r-base r-base-dev r-recommended
+    ;;
+  * )
+    echo "Skipped re-install of clean R 4.2.1."
+    ;;
+esac
 
 #installed from source and add PATH to local environment
 
