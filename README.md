@@ -32,7 +32,7 @@ sudo chmod 774 ./Rhapsody_analysis/shell_scripts/Rhapsody_mapping.sh
 * Perform mapping and counting by STARsolo 2.7.10a (for WTA and targeted reads) or Bowtie2-2.4.5 (for hashtag/sampletag/Totalseq/Abseq reads)
 * small-RNA annotations were removed from reference gtf file to build STAR index files.
 * Required index files are automatically built by running setup.sh script.
-* Identify valid cell barcodes by using DropletUtils and dropkick packages and export count matrix data of survived cells (.txt.gz file)
+* Identify valid cell barcodes by using DropletUtils and Dropkick packages and export count matrix data of survived cells (.txt.gz file)
 * Export spliced- and un-spliced count data for further RNA velocity analysis.
 * Export mapping report html file that contains basic statistics of mapping results with associated figures.
 * Each cell barcode are exported as 27nt nucleotide bases without two 4-base spacers.
@@ -44,7 +44,7 @@ Seqkit 2.2.0 (https://bioinf.shenwei.me/seqkit/)
 FastQC v0.11.9 (https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)  
 Bowtie2 v2.4.5 (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)  
 R 4.2.1 (https://cran.r-project.org/) and associated packages (please see ./Rsciprs/setup.R)  
-Python3 (3.8 or greater), pip, and associated packages (please see ./source_file/requirements.txt)  
+Python3 (3.8 or higher), pip, and associated packages (please see ./source_file/requirements.txt)  
 
 ## Usage
 
