@@ -49,8 +49,8 @@ Python3 (3.8 or higher), pip, and associated packages (please see ./source_file/
 ## Usage
 
 Go on to the ./Rhapsody_analysis directory on the command line, and 
-type ./shell_scripts/Rhapsody_mapping.sh with appropriate options.
-mapping result is exported on the ./results directory.
+type ./shell_scripts/Rhapsody_mapping.sh with appropriate options.  
+Mapping result is exported in the ./results directory.
 
 ```
 Usage: Rhapsody_mapping.sh [OPTIONS...]
