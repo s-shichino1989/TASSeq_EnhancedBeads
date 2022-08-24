@@ -46,6 +46,10 @@ Bowtie2 v2.4.5 (http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 R 4.2.1 (https://cran.r-project.org/) and associated packages (please see ./Rsciprs/setup.R)  
 Python3 (3.8 or higher), pip, and associated packages (please see ./source_file/requirements.txt)  
 
+## Hardware requirements
+>16-core CPU (recommended), >192GB memory, and >500GB free-space of NVMe SSD storage   
+(depends on fastq data size)
+
 ## Usage
 
 Go on to the ./Rhapsody_analysis directory on the command line, and 
