@@ -30,6 +30,7 @@ sudo chmod 774 ./Rhapsody_analysis/shell_scripts/Rhapsody_mapping.sh
 * Remove adapters, 5' polyG, and 3' polyA streches by Cutadapt 4.1. Quality filtering also performed by Cutadapt 4.1.
 * Base composition analysis after quality filtering/trimming by FastQC and Seqkit.
 * Perform mapping and counting by STARsolo 2.7.10a (for WTA and targeted reads) or Bowtie2-2.4.5 (for hashtag/sampletag/Totalseq/Abseq reads)
+* GeneFull/Rescue mode is used for STARsolo analysis to count pre-mRNA reads, multi-mapped reads, and multi-gene reads.
 * small-RNA annotations were removed from reference gtf file to build STAR index files.
 * Required index files are automatically built by running setup.sh script.
 * Identify valid cell barcodes by using DropletUtils and Dropkick packages and export count matrix data of survived cells (.txt.gz file)
