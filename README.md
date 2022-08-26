@@ -36,7 +36,7 @@ sudo chmod 774 ./Rhapsody_analysis/shell_scripts/Rhapsody_mapping.sh
 * Identify valid cell barcodes by using DropletUtils and Dropkick packages and export count matrix data of survived cells (.txt.gz file)
 * Export spliced- and un-spliced count data for further RNA velocity analysis.
 * Export mapping report html file that contains basic statistics of mapping results with associated figures.
-* Each cell barcode are exported as 27nt nucleotide bases without two 4-base spacers.
+* Each cell barcode are exported as 27nt nucleotide bases (CLS1-CLS2-CLS3) without two 4-base spacers.
 
 ## Dependencies
 STARsolo 2.7.10a (https://github.com/alexdobin/STAR)  
@@ -48,8 +48,8 @@ R 4.2.1 (https://cran.r-project.org/) and associated packages (please see ./Rsci
 Python3 (3.8 or higher), pip, and associated packages (please see ./source_file/requirements.txt)  
 
 ## Hardware requirements
->16-core CPU (recommended), >192GB memory, and >500GB free-space of NVMe SSD storage   
-(depends on fastq data size)
+>16-core CPU (recommended), >192GB memory, and >500GB free-space in NVMe SSD storage.   
+Requirement of free disk space depends on fastq data size.  
 
 ## Usage
 
