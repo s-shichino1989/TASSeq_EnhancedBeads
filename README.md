@@ -15,7 +15,7 @@ sudo sh setup.sh
 In the setup.sh script, ask whether re-install R 4.2.1, install required python modules/R packages automatically.  
 Please select and type y/Y(Yes) or n/N(No).  
 
-If you do not perform automatic install of modules/packages, you could check required modules/packages  
+If you do not perform automatic installation of modules/packages, you could check required modules/packages  
 manually by seeing ./source_file/requirements.txt (for python module installation via pip)  
 and ./Rscripts/setup.R (R package installation).  
   
