@@ -6,7 +6,7 @@ To use this pipline, please clone repository, extract, and change folder name as
 Please first see setup.sh to setup analytical environment.  
 This package is tested for Ubuntu 20.04 LTS, python3.8, pip, R-4.2.1.  
 
-You could setup analytical environment by moving on to the Rhapsody_analysis directory and type as below.  
+You could setup analytical environment by moving onto the Rhapsody_analysis directory and type as below.  
 
 ```bash
 sudo sh setup.sh
