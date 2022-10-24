@@ -98,9 +98,9 @@ fi
 
 #fuzzy correction of input/output directory name. must be terminated by "/" within pipeline.
 in_dir=`echo ${in_dir}"/"`
-in_dir=`echo ${in_dir} | sed -e 's/\/\//\//g'`
+in_dir=`echo ${in_dir} | sed -e 's/\/\//\//g'` #if backslash duplicated, correct as single backslash
 out_dir=`echo ${out_dir}"/"`
-out_dir=`echo ${out_dir} | sed -e 's/\/\//\//g'`
+out_dir=`echo ${out_dir} | sed -e 's/\/\//\//g'` #if backslash duplicated, correct as single backslash
 
 #check input fastq file number
 Nlane=`ls ${in_dir}${dataID}* | cat | wc -l`
@@ -118,7 +118,7 @@ else
 mkdir ./result/${samplename}_results/
 fi
 
-LOG_OUT="./result/${samplename}_results/${samplename}_stdout.log"
+LOG_OUT="./result/${samplename}_results/${samplename}_stdout.out"
 exec 1> >(tee -a $LOG_OUT)
 
 if "${flag_threads}"; then
@@ -344,8 +344,12 @@ cp ${filepath} ./data/${tmp}.fastq.gz
 
 done
 
-ls ./data/${samplename}*_R1_001.fastq.gz | cat | xargs cat > ${out_dir_fastq}${file1}.fastq.gz
-ls ./data/${samplename}*_R2_001.fastq.gz | cat | xargs cat > ${out_dir_fastq}${file2}.fastq.gz
+ls ./data/${samplename}*_R1_001.fastq.gz | cat | xargs cat > ./data/${file1}.fastq.gz
+ls ./data/${samplename}*_R2_001.fastq.gz | cat | xargs cat > ./data/${file2}.fastq.gz
+
+mv ./data/${file1}.fastq.gz ${out_dir_fastq}${file1}.fastq.gz
+
+mv ./data/${file2}.fastq.gz ${out_dir_fastq}${file2}.fastq.gz
 
 echo "Finish concatenating fastq files"
 echo `date '+%y/%m/%d %H:%M:%S'`
@@ -417,8 +421,8 @@ echo `date '+%y/%m/%d %H:%M:%S'`
 arg_read1=`ls ${dataID}*_R1_001_trim.fastq.gz | cat | sort | sed -n 1p `
 arg_read2=`ls ${dataID}*_R2_001_trim.fastq.gz | cat | sort | sed -n 1p `
 
-seqkit sample -p 0.1 $arg_read1 | seqkit head -n 1000000 > ${samplename}_fastqc_R1.fastq
-seqkit sample -p 0.1 $arg_read2 | seqkit head -n 1000000 > ${samplename}_fastqc_R2.fastq
+seqkit sample -p 0.1 $arg_read1 | seqkit head -n 5000000 > ${samplename}_fastqc_R1.fastq
+seqkit sample -p 0.1 $arg_read2 | seqkit head -n 5000000 > ${samplename}_fastqc_R2.fastq
 pigz -p 16 ${samplename}_fastqc_R1.fastq
 pigz -p 16 ${samplename}_fastqc_R2.fastq
 
@@ -486,7 +490,7 @@ sleep 1
 
 #concatenate STARsolo count table and Summary statistics
 
-ls -d ${samplename}_S*_L00* | cat > dir_list.txt
+ls -d ${samplename}*L00* | cat > dir_list.txt
 
 Rscript ./Rscripts/STARsolo_concatenate.R ${samplename} ${Nlane}
 
@@ -554,7 +558,15 @@ end_time=`date +%s`
 time_reshaping=$((end_time - start_time))
 
 
-rm -fR ${samplename}_S*_L00*
+rm -fR ${samplename}*L00*
+
+#create anndata for scVelo analysis
+if [ $library_type = WTA ]; then
+
+echo "create anndata for scVelo analysis..."
+python3 ./Rhapsody_python_new/RhapsodyPython/apps/STARsoloToAdata.py --resultPath ./result/${samplename}_results/
+fi
+
 
 echo "Preprocessing finished." 
 echo "Cutadapt trimming taken ${time_cutadapt} seconds" 
@@ -565,7 +577,7 @@ time=$((time_cutadapt + time_splitfastq + time_annotate + time_reshaping))
 echo "Total running time is ${time} seconds"
 echo `date '+%y/%m/%d %H:%M:%S'`
 
-cp ./result/${samplename}_results/${samplename}_stdout.log ./result/${samplename}_results/stats/${samplename}_stdout.log
+#cp ./result/${samplename}_results/${samplename}_stdout.log ./result/${samplename}_results/stats/${samplename}_stdout.log
 
 
 else
